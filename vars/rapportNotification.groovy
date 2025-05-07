@@ -14,7 +14,7 @@ def call(Map params = [:]) {
         BUILD_NUMBER: buildNumber,
         JOB_NAME    : jobName,
         BUILD_URL   : buildUrl,
-        REPORTS     : attachments?.split(',')*.trim()
+        REPORTS     : attachments ? attachments.split(',').collect { it.trim() } : []
     ]
 
     def body = engine.createTemplate(rawTpl).make(binding).toString()
