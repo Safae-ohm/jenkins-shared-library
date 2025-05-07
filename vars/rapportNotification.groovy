@@ -1,5 +1,5 @@
 def call(Map params = [:]) {
-    
+    def recipient   = params.get('to', '')
     def attachments = params.get('attachmentsPattern', '')
     def buildNumber = env.BUILD_NUMBER
     def jobName = env.JOB_NAME
