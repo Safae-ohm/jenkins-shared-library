@@ -1,6 +1,7 @@
 def call() {    
 
-         def install = sh(script: 'npm install --no-audit')  
+         def install = sh(script: 'npm install --no-audit') 
+         def dependencycheck= sh('npm audit --audit-level=critical')
       }
 
 
