@@ -1,6 +1,5 @@
 def call() {
-           node{    
-                sh 'npm ci --no-audit'  
+           node{     
                 sh 'npm install --no-audit'
            }
 }
