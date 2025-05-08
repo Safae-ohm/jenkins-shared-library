@@ -2,37 +2,41 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Trivy Report - {{ .ArtifactName }}</title>
+    <title>Trivy Report for {{ .ArtifactName }}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
-        h1 { font-size: 22px; color: #00539C; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 14px; }
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #fff; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
         th { background-color: #00539C; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
         .severity-CRITICAL { color: red; font-weight: bold; }
         .severity-HIGH { color: orange; }
         .severity-MEDIUM { color: goldenrod; }
         .severity-LOW { color: green; }
-        .section-title { margin-top: 30px; font-size: 18px; color: #444; border-bottom: 2px solid #ccc; }
     </style>
 </head>
 <body>
 
-<h1>{{ .ArtifactName }} - Trivy Report - {{ .GeneratedAt }}</h1>
+<h1>Trivy Report for {{ .ArtifactName }}</h1>
+<p>Generated at: {{ .GeneratedAt }}</p>
 
 {{ range .Results }}
-    <div class="section-title">{{ .Target }}</div>
+    <h2>{{ .Target }}</h2>
+
     {{ if .Vulnerabilities }}
-        <table>
+    <table>
+        <thead>
             <tr>
                 <th>Package</th>
                 <th>Vulnerability ID</th>
                 <th>Severity</th>
                 <th>Installed Version</th>
                 <th>Fixed Version</th>
-                <th>Links</th>
+                <th>References</th>
             </tr>
+        </thead>
+        <tbody>
             {{ range .Vulnerabilities }}
             <tr>
                 <td>{{ .PkgName }}</td>
@@ -47,10 +51,12 @@
                 </td>
             </tr>
             {{ end }}
-        </table>
+        </tbody>
+    </table>
     {{ else }}
         <p>No vulnerabilities found.</p>
     {{ end }}
+
 {{ end }}
 
 </body>
