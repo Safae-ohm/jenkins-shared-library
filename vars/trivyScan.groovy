@@ -1,53 +1,34 @@
-def dockerSplitReports(String imageName, String imageTag) {
+def kaniko() {
     script {
+        def tplContent = libraryResource "trivy/html.tpl"
+        writeFile file: "${WORKSPACE}/html.tpl", text: tplContent
+
+        def trivyConfigContent = libraryResource "trivy/trivy.yml"
+        writeFile file: "${WORKSPACE}/trivy.yml", text: trivyConfigContent
+
+        def command = "trivy image --config ${WORKSPACE}/trivy.yml --template '@${WORKSPACE}/html.tpl' -o ${WORKSPACE}/trivy-report.html --input ${WORKSPACE}/${BUILD_NUMBER}.tar"
+
+        def exitCode = sh(script: command, returnStatus: true)
+
+        if (exitCode != 0) {
+            error "Trivy scan found vulnerabilities"
+        } else {
+            echo "Trivy scan completed successfully with no critical vulnerabilities."
+        }
+
+        return exitCode
+    }
+}
+
+def docker(String imageName, String imageTag) {
+    try {
         setupTrivyFiles()
 
-        // Output paths
-        def mediumJson = "${WORKSPACE}/trivy-image-MEDIUM-results.json"
-        def criticalJson = "${WORKSPACE}/trivy-image-CRITICAL-results.json"
-        def mediumHtml = "${WORKSPACE}/trivy-image-MEDIUM-results.html"
-        def criticalHtml = "${WORKSPACE}/trivy-image-CRITICAL-results.html"
+        def command = "trivy image --config ${WORKSPACE}/trivy.yml --template '@${WORKSPACE}/html.tpl' -o ${WORKSPACE}/trivy-report.html ${imageName}:${imageTag}"
+        def result = runTrivyCommand(command)
 
-        // Run scans separately
-        def scanMedium = """
-            trivy image ${imageName}:${imageTag} \
-                --severity LOW,MEDIUM \
-                --exit-code 0 \
-                --quiet \
-                --format json -o ${mediumJson}
-        """.stripIndent()
-
-        def scanCritical = """
-            trivy image ${imageName}:${imageTag} \
-                --severity CRITICAL \
-                --exit-code 1 \
-                --quiet \
-                --format json -o ${criticalJson}
-        """.stripIndent()
-
-        def exitCodeMedium = sh(script: scanMedium, returnStatus: true)
-        def exitCodeCritical = sh(script: scanCritical, returnStatus: true)
-
-        // Convert both JSON reports to HTML
-        def convertMedium = """
-            trivy convert --format template \
-                --template '@${WORKSPACE}/html.tpl' \
-                --output ${mediumHtml} ${mediumJson}
-        """.stripIndent()
-
-        def convertCritical = """
-            trivy convert --format template \
-                --template '@${WORKSPACE}/html.tpl' \
-                --output ${criticalHtml} ${criticalJson}
-        """.stripIndent()
-
-        sh convertMedium
-        sh convertCritical
-
-        // Return both exit codes for reference
-        return [
-            mediumExitCode: exitCodeMedium,
-            criticalExitCode: exitCodeCritical
-        ]
+        return result.exitCode
+    } catch (Exception e) {
+        error "Exception during Trivy scan for Docker image ${imageName}:${imageTag}: ${e.getMessage()}"
     }
 }
