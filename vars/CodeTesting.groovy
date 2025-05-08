@@ -1,7 +1,7 @@
 def call() {    
-      def install(){          
-            sh 'npm install --no-audit'
+
+         def install = sh(script: 'npm install --no-audit')  
       }
-}
+
 
 
