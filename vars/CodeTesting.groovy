@@ -1,7 +1,5 @@
-def call() {
-           node{     
+def call() {    
                 sh 'npm install --no-audit'
-           }
 }
 
 
