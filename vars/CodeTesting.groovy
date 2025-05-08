@@ -10,3 +10,4 @@ def test() {
 def coverage() {
     sh 'npm run test:cov'
 }
+return this
