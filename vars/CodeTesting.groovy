@@ -1,65 +1,19 @@
-def call(Map config = [:]) {
-    pipeline {
-	
-        agent any
-		
-        stages {
-		
-        stage('install dependencies') {
-            steps {
+def call() {
+    install()
+    test()
+    coverage()
+    publish()
+}
+
+def install() {
                 sh 'npm ci --no-audit'  
                 sh 'npm install --no-audit'
-            }
-        }
+}
 
-        stage('dependency check') {
-            parallel {
-                stage('NPM Dependency Audit') {
+def test() {
+              sh 'npm audit --audit-level=critical'
+}
 
-                    steps {
-                        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                            sh 'npm audit --audit-level=critical'
-                        }
-                    }
-                }
-
-                stage('OWASP Dependency-Check') {
-                    steps {
-                        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                            dependencyCheck additionalArguments: '''
-                                --out "./"
-                                --scan "./"
-                                --format "ALL"
-                                --prettyPrint''',
-                                odcInstallation: 'OWASP-Dep-Check-12'
-
-                            dependencyCheckPublisher(
-                                pattern: 'dependency-check-report.xml',
-                                failedTotalCritical: 1,
-                                stopBuild: false
-                            )
-
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('unit testing') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'npm test'
-                }
-            }
-        }
-
-        stage('code coverage') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    sh 'npm run test:cov'
-                }
-            }
-        }
-        }
-    }
+def coverage() {
+    sh 'npm run test:cov'
 }
