@@ -12,38 +12,34 @@
       padding: 0;
     }
 
-    h2 {
+    h4 {
       background-color: ${HEADER_COLOR};
       color: #fff;
-      padding: 12px 24px;
+      padding: 10px 20px;
       margin: 0;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: normal;
     }
 
     table {
       width: 85%;
-      margin: 24px auto;
+      margin: 20px auto;
       border-collapse: collapse;
       background-color: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      font-size: 14px;
+      font-size: 13px;
+      border: 1px solid #ccc;
     }
 
     th, td {
-      padding: 10px 16px;
+      padding: 8px 12px;
       text-align: left;
-      border-bottom: 1px solid #e2e2e2;
+      border: 1px solid #ccc;
     }
 
     th {
-      background-color: #495057;
+      background-color: #6c757d;
       color: #fff;
       font-weight: 500;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
     }
 
     a {
@@ -63,7 +59,7 @@
 </head>
 <body>
 
-<h2>Résumé de Déploiement</h2>
+<h4>Résumé de Déploiement</h4>
 
 <table>
   <thead>
