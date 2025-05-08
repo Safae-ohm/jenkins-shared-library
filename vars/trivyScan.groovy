@@ -1,24 +1,28 @@
-def trivyScan(String imageName, String imageTag) {
+def call(Map args) {
+    def imageName = args.imageName
+    def imageTag = args.imageTag
+
     script {
-        // Write Trivy config and HTML template from shared library
+        // Load the Trivy template 
         def tplContent = libraryResource "trivy/html.tpl"
         writeFile file: "${WORKSPACE}/html.tpl", text: tplContent
 
         def trivyConfigContent = libraryResource "trivy/trivy.yml"
         writeFile file: "${WORKSPACE}/trivy.yml", text: trivyConfigContent
 
-        // Build Trivy command
+        // Run Trivy scan on the pushed image
         def command = "trivy image --config ${WORKSPACE}/trivy.yml --template '@${WORKSPACE}/html.tpl' -o ${WORKSPACE}/trivy-report.html ${imageName}:${imageTag}"
-
-        // Run Trivy and capture exit code
         def exitCode = sh(script: command, returnStatus: true)
 
-        // Fail the build if there are vulnerabilities
+        // Mark the build as failed if vulnerabilities are found
         if (exitCode != 0) {
             error "Trivy scan failed — vulnerabilities found"
         } else {
             echo "Trivy scan passed — no critical vulnerabilities."
         }
+
+        // Archive the report
+        archiveArtifacts artifacts: 'trivy-report.html', allowEmptyArchive: true
 
         return exitCode
     }
